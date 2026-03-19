@@ -1,0 +1,25 @@
+# Personal data (never commit)
+profile.yml
+materials/*.md
+materials/papers/
+materials/projects/
+!materials/examples/
+
+# Application outputs (generated, personal)
+applications/
+tracker.csv
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.python-version
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp

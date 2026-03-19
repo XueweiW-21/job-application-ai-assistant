@@ -1,0 +1,36 @@
+# ============================================================
+# profile.yml — Your personal configuration
+# ============================================================
+# Copy this file to profile.yml and fill in your information.
+# profile.yml is gitignored — your data stays local.
+# ============================================================
+
+name: "Your Full Name"
+email: "your.email@example.com"
+phone: "(555) 123-4567"
+location: "City, State"
+open_to_remote: true
+
+# Links shown in resume header (remove any you don't use)
+links:
+  LinkedIn: "https://www.linkedin.com/in/your-profile/"
+  GitHub: "https://github.com/your-username"
+  # Portfolio: "https://your-portfolio.com"
+  # Google Scholar: "https://scholar.google.com/citations?user=XXXXX"
+
+# Resume formatting
+font: "Times New Roman"
+
+# Writing rules (applied to all generated text)
+writing_rules:
+  - "No hyphens or dashes in generated text"
+  # Add your own rules here, e.g.:
+  # - "Use British English spelling"
+  # - "Avoid exclamation marks"
+
+# Target roles (helps the agent understand your goals)
+target_roles:
+  - "Data Scientist"
+  - "ML Engineer"
+  # - "Product Manager"
+  # - "Software Engineer"
