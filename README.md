@@ -1,27 +1,55 @@
 # Job Application AI Assistant
 
-An AI assistant for the full job application lifecycle, built as [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills. It learns your background from your documents, then helps you analyze job postings, tailor resumes, write cover letters, and prepare for interviews.
+An AI assistant that learns your background, prepares everything from application materials to interview, and finds strengths you did not know you had. Built as [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills.
 
-**What makes this different from other AI resume tools:**
+## Key Features
 
-- **It learns you first.** You build a structured materials package (resume, bio, skills inventory, projects) that all skills draw from. The more context it has, the better every output gets.
-- **It won't make things up.** Every claim in a generated resume, cover letter, or interview answer must trace to your real experience. Gaps are surfaced honestly, not papered over.
-- **It's just markdown files.** No Docker, no API keys beyond Claude, no browser automation. Drop the skills into Claude Code and go.
+- **Learns you, not just your resume.** Builds a structured picture of your skills, voice, career arc, and writing style. Outputs sound like you.
+- **Honest about gaps.** Tells you what is missing and how to frame what you do have. No fabrication, no false confidence.
+- **Full lifecycle.** JD analysis, resume tailoring, cover letters, referral notes, application tracking, interview prep. All connected.
+- **Portable.** Just markdown files. Works in Claude Code CLI, adaptable to web chat. No Docker, no browser automation.
 
-## Quick Start
+## Overview
+
+**Not just a resume tailor.** Feed it your resumes and past cover letters. It maps your experience against every job you look at, surfaces connections you missed ("your research lab work is exactly what this finance company calls alternative data"), and tells you honestly where the gaps are.
+
+**Why this matters if you are job searching right now:** the hardest part is not writing a resume. It is seeing yourself clearly when you are stressed and second-guessing everything. This tool does that for you. The more you use it, the better it knows you.
+
+## Privacy
+
+All your personal data (resume, bio, skills, application outputs, tracker) stays on your machine. These files are gitignored and never leave your local directory. The only external calls are to the Claude API when you run skills, which is covered by Anthropic's [usage policy](https://www.anthropic.com/policies).
+
+## Prerequisites
+
+You need two things before starting:
+
+1. **Claude Code** — install it by following the [official setup guide](https://docs.anthropic.com/en/docs/claude-code/getting-started). Claude Code is a CLI tool. If you have never used a terminal before, the setup guide walks you through it.
+2. **An Anthropic account with API access** — Claude Code uses the Claude API, which requires either a paid API plan or a Claude Pro/Max subscription. Each full pipeline run (analyze a JD, tailor a resume, write a cover letter) typically costs a few cents in API usage. You can monitor your usage at [console.anthropic.com](https://console.anthropic.com/).
+
+## Getting Started
 
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/job-application-ai-assistant.git
+git clone https://github.com/XueweiW-21/job-application-ai-assistant.git
 cd job-application-ai-assistant
-cp profile.example.yml profile.yml
-# Edit profile.yml with your name, contact info, and links
 ```
+
+Then copy the example profile to create your own:
+
+- **macOS/Linux:** `cp profile.example.yml profile.yml`
+- **Windows PowerShell:** `Copy-Item profile.example.yml profile.yml`
+
+Open `profile.yml` in any text editor and fill in your name, contact info, and links.
 
 ### 2. Build your materials
 
-Open Claude Code in this directory and run:
+Start Claude Code in this directory. Two ways:
+
+- **VS Code:** Install the [Claude Code extension](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code), open this folder, and Claude Code appears in the sidebar.
+- **Terminal:** Open a terminal, `cd` into this folder, and run `claude`.
+
+Once Claude Code is running, type:
 
 ```
 /setup
@@ -33,18 +61,26 @@ Upload your existing resumes, cover letters, or LinkedIn PDF. The setup skill ex
 
 Paste a JD URL or text into the chat. The assistant will ask if you want to run `/jd-analyze`. If the fit is strong, it automatically tailors your resume.
 
-### 4. Optional: DOCX generation
+### 4. Resume output formats
 
-If you want `.docx` resume output:
+`/resume-tailor` always produces a `resume_tailored.md` file. This is the primary output. You can paste it directly into online application forms, or open it in any text editor for a final review before submitting.
+
+**Optional: generate a DOCX file**
+
+If you want a formatted `.docx` file to upload to company portals, set up the Python environment:
 
 ```bash
 python -m venv .venv
-.venv/Scripts/activate   # Windows
+.venv/Scripts/activate      # Windows
 # source .venv/bin/activate  # macOS/Linux
-pip install python-docx pyyaml
+pip install -r requirements.txt
 ```
 
-Place a `.docx` template in `.claude/skills/resume-tailor/templates/`.
+Place a `.docx` template in `.claude/skills/resume-tailor/templates/` if you want custom formatting. Without a template, a clean default style is used.
+
+**Why DOCX and not PDF?**
+
+Most job portals accept DOCX and PDF equally, but many ATS (Applicant Tracking Systems) parse DOCX more reliably than PDF. The generator is built specifically for ATS compatibility: no headers or footers, no tables, no text boxes, plain paragraphs only. Once you have the DOCX and are happy with it, open it in Word or Google Docs and export to PDF for the final upload.
 
 ## Skills
 
@@ -95,13 +131,13 @@ materials/
 └── projects/             # Project details
 ```
 
-See `materials/examples/` for a complete example using a fictional data scientist.
+See `materials/examples/` for a complete example using Michael Scott from *The Office* as a data scientist. The names and companies are obviously fictional so you can see exactly what real materials look like without anyone's actual data.
 
 ## CLI vs Web Chat
 
-**Claude Code CLI (recommended):** Full pipeline experience. Skills chain automatically, files persist between sessions, tracker updates silently.
+**Claude Code CLI (recommended):** This is the intended experience. Skills chain automatically (JD analysis triggers resume tailoring, which prompts for a cover letter), files persist between sessions, and the tracker updates silently in the background.
 
-**Claude Web Chat:** You can copy skill instructions into a web chat and use them individually. But you lose file persistence, auto-triggering, and the tracker. You'll need to manage files manually.
+**Claude Web Chat:** You can adapt individual skills for use in web chat by copying the contents of a SKILL.md file into your conversation as context. However, this is a manual process: you lose automatic skill chaining, file persistence, and the tracker. Each skill would need to be run independently, and you would manage files yourself. This path works if you only need one skill occasionally, but for a full application pipeline, the CLI is significantly smoother.
 
 ## Configuration
 
