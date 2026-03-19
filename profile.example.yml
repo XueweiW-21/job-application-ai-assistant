@@ -28,6 +28,11 @@ writing_rules:
   # - "Use British English spelling"
   # - "Avoid exclamation marks"
 
+# Experience level (auto-detected by /setup, or set manually)
+# Options: new_grad, early_career, mid_career, senior
+# Controls resume page length, bullet counts, and cover letter structure
+# experience_level: "mid_career"
+
 # Target roles (helps the agent understand your goals)
 target_roles:
   - "Data Scientist"

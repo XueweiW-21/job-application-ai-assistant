@@ -54,12 +54,34 @@ Parse all uploaded documents. Generate or update the following files:
 - Include whatever details are available (title, tools, outcome, description)
 - Flag as stubs if details are thin
 
-### Step 3: Show Extraction Summary
+### Step 3: Classify Experience Level
+
+After extracting materials, determine the user's experience level based on:
+- Total years of professional experience (from earliest role to most recent)
+- Number of distinct roles
+- Whether they have publications, projects, or portfolio pieces
+
+Write `experience_level` to `profile.yml`:
+
+| Level | Criteria | Resume target |
+|---|---|---|
+| `new_grad` | 0-1 years experience, or only internships and academic roles | 1 page |
+| `early_career` | 1-4 years experience, 1-2 full-time roles | 1 page |
+| `mid_career` | 5-10 years experience, 2-4 roles | 1-2 pages |
+| `senior` | 10+ years experience, or 4+ roles with significant scope | 2 pages |
+
+If `experience_level` already exists in `profile.yml`, do not overwrite it. The user may have set it manually.
+
+Tell the user what level was detected: "Based on your materials, I have set your experience level to {level}. This controls resume length and formatting. You can change it in profile.yml if it does not feel right."
+
+### Step 4: Show Extraction Summary
 
 Display what was extracted with gap indicators:
 
 ```
 Materials extracted:
+
+Experience level: {level} (resume target: {1 page / 1-2 pages / 2 pages})
 
 resume_master.md — {N} roles found, {N} bullets total
   ✅ {Role} at {Company} ({N} bullets)
@@ -75,7 +97,7 @@ projects/ — {N} stubs created
 papers/ — {N} stubs created
 ```
 
-### Step 4: Done — User Can Start Applying
+### Step 5: Done — User Can Start Applying
 
 Tell the user:
 - They can run `/jd-analyze` on any job posting now

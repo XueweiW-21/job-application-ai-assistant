@@ -80,28 +80,24 @@ This is the CL's primary value add over the resume. Directly map specific past e
 
 ## Step 4: Write the Letter
 
-### Structure (3 to 4 paragraphs, 250 to 350 words total)
+### Structure
 
-**Paragraph 1: Opening (2 to 3 sentences)**
-- Referral name drop (if applicable)
-- Role title and company name
-- One-sentence hook: the strongest match stated concretely
+Read `experience_level` from `profile.yml` to calibrate length and structure. If not set, infer from the number of roles in `resume_master.md`.
 
-**Paragraph 2: Career Arc and Transferable Skills (4 to 6 sentences)**
-- The pivot narrative: why the trajectory is an asset
-- Connect two specific past experiences to the target role's needs
-- Surface the transferable skills that the resume shows but doesn't explain
-- Address the most significant gap from the fit assessment honestly if it is addressable
+**For `new_grad` and `early_career` (200 to 275 words, 3 paragraphs):**
 
-**Paragraph 3: Company Connection (2 to 4 sentences)**
-- The specific detail from Step 2
-- Why it resonates with the user's experience or goals
-- What the user would bring to that specific context
+- **Paragraph 1: Opening (2 to 3 sentences)** — Referral (if applicable), role and company, one concrete hook (coursework, internship, or project that connects to the role).
+- **Paragraph 2: Skills and Potential (3 to 5 sentences)** — Lead with the strongest relevant experience, even if academic or project-based. Connect specific skills or coursework to the role's needs. Show eagerness to learn without being generic. If there is an internship or research role, draw from it concretely.
+- **Paragraph 3: Company Connection and Close (2 to 3 sentences)** — Why this company specifically. Close with confidence.
 
-**Paragraph 4: Close (1 to 2 sentences)**
-- Direct and confident, not deferential
-- "I would welcome the opportunity to discuss how my experience with [specific thing] could contribute to [specific team/initiative]."
-- No groveling, no empty enthusiasm
+Do not stretch thin experience into 4 paragraphs. Shorter and specific beats longer and vague.
+
+**For `mid_career` and `senior` (250 to 350 words, 3 to 4 paragraphs):**
+
+- **Paragraph 1: Opening (2 to 3 sentences)** — Referral name drop (if applicable). Role title and company name. One-sentence hook: the strongest match stated concretely.
+- **Paragraph 2: Career Arc and Transferable Skills (4 to 6 sentences)** — The pivot narrative: why the trajectory is an asset. Connect two specific past experiences to the target role's needs. Surface the transferable skills that the resume shows but does not explain. Address the most significant gap from the fit assessment honestly if it is addressable.
+- **Paragraph 3: Company Connection (2 to 4 sentences)** — The specific detail from Step 2. Why it resonates with the user's experience or goals. What the user would bring to that specific context.
+- **Paragraph 4: Close (1 to 2 sentences)** — Direct and confident, not deferential. "I would welcome the opportunity to discuss how my experience with [specific thing] could contribute to [specific team/initiative]." No groveling, no empty enthusiasm.
 
 ### Tone Calibration
 - **Read the JD's own tone first.** Match the JD's language and emphasis.

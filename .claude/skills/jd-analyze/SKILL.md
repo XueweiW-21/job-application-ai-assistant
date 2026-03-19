@@ -38,6 +38,14 @@ Analyze the provided job description and produce a structured match brief.
    - If no row exists, create one with: `date_applied` = today, `company`, `role`, `folder`, `job_id` from Step 1b, `fit_tier` from the banner, `status` = `analyzed`, `resume_version` = No, `cover_letter` = No, `last_updated` = today
 6. After writing, display a brief summary to the user: company, role, overall fit assessment, and top 3 action items.
 
+## Experience Level Awareness
+
+Read `experience_level` from `profile.yml`. If not set, estimate from the number of roles in `resume_master.md`. Factor this into the fit assessment:
+
+- **`new_grad` / `early_career` applying to entry-level roles:** Years-of-experience requirements of "1-2 years" or "0-3 years" should not count as gaps. Academic projects, internships, and coursework count as relevant experience.
+- **`new_grad` / `early_career` applying to senior roles:** Flag the seniority mismatch explicitly in the assessment. A role asking for "5+ years" when the user has 1 year is a meaningful gap regardless of skill match.
+- **`mid_career` / `senior` applying to junior roles:** Flag potential overqualification in Red Flags. The role may be too junior even if all skills match.
+
 ## Fit Tier Definitions
 
 Score based on must-have requirements only:

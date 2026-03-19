@@ -45,10 +45,22 @@ Rewrite the Skills Summary section:
 
 ## Step 3: Rewrite Experience Sections
 
+Read `experience_level` from `profile.yml` to calibrate bullet counts and page targets. If not set, estimate from the number of roles in `resume_master.md`.
+
 For each role in `resume_master.md`:
 
 ### Bullet Selection
-- Select **4 to 6 bullets** per role, prioritizing:
+
+Bullet count per role depends on experience level:
+
+| Level | Bullets per role | Notes |
+|---|---|---|
+| `new_grad` | All available (up to 4) | Every role matters. Include internships, research, and academic work. |
+| `early_career` | 3 to 5 | Include all roles. Prioritize the most recent. |
+| `mid_career` | 4 to 6 | Standard selection. Trim older roles. |
+| `senior` | 4 to 6 | Standard selection. Early career roles only if JD-relevant. |
+
+Prioritize bullets by:
   1. Bullets that directly address a must-have requirement from the JD
   2. Bullets that contain or can naturally echo ATS keywords
   3. Bullets that demonstrate skills marked as ⚠️ Partial in the fit assessment (to strengthen weak areas)
@@ -71,13 +83,13 @@ Use the four named reframing strategies (drawn from the Resume Tailoring Notes i
 Each bullet should use at most one or two strategies. Do not stack all four on a single bullet.
 
 ### Early Career Roles
-- **Include only if** the JD analysis indicates relevance (research, academic, domain-specific)
-- If included, limit to 2 to 3 bullets maximum
-- Later experience makes a stronger case for most JDs
+- For `new_grad` and `early_career`: include ALL roles. These are the user's primary experience, not filler.
+- For `mid_career` and `senior`: include only if the JD analysis indicates relevance (research, academic, domain-specific). If included, limit to 2 to 3 bullets maximum. Later experience makes a stronger case for most JDs.
 
 ## Step 4: Select Publications / Portfolio
 
-- Select the **2 to 4 most JD-relevant items** from available publications, portfolio pieces, or case studies
+- If `materials/papers/` and `materials/projects/` are empty or contain no files, skip this section entirely. Do not include a Publications header with nothing under it.
+- If publications or portfolio pieces exist, select the **2 to 4 most JD-relevant items**
 - Relevance is determined by:
   - Methods used (does the piece demonstrate a required skill?)
   - Domain overlap (does the topic relate to the company/role domain?)
@@ -106,7 +118,16 @@ Output structure (markdown):
 [Selected per Step 4]
 ```
 
-Target length: **2 pages** when rendered. If the content runs long, trim lower-priority bullets from older roles first.
+Target length depends on `experience_level` from `profile.yml`:
+
+| Level | Target |
+|---|---|
+| `new_grad` | **1 page** strictly. Trim aggressively. Every line must earn its place. |
+| `early_career` | **1 page**. Exceed only if the user has dense, relevant experience that cannot be cut without losing JD coverage. |
+| `mid_career` | **1 to 2 pages**. Use judgment based on role count and JD relevance. |
+| `senior` | **2 pages**. If content runs long, trim lower-priority bullets from older roles first. |
+
+If `experience_level` is not set, default to 1 page for 2 or fewer roles, 2 pages for 3 or more.
 
 ## Step 6: Write Output
 
