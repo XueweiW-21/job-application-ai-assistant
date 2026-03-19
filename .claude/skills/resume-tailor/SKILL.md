@@ -127,12 +127,15 @@ After writing the markdown (auto, silent):
 After writing the markdown, run the docx generation script. Read `profile.yml` for the user's name to construct the output filename `{Name} Resume {YYYY-MM-DD}.docx`:
 
 ```bash
+# macOS/Linux:
+.venv/bin/python .claude/skills/resume-tailor/scripts/generate_docx.py "applications/{folder}/resume_tailored.md" "applications/{folder}/{Name} Resume {YYYY-MM-DD}.docx"
+# Windows:
 .venv/Scripts/python.exe .claude/skills/resume-tailor/scripts/generate_docx.py "applications/{folder}/resume_tailored.md" "applications/{folder}/{Name} Resume {YYYY-MM-DD}.docx"
 ```
 
 If the script fails (missing dependencies, etc.), tell the user and suggest they install requirements:
 ```bash
-pip install python-docx pyyaml
+pip install -r requirements.txt
 ```
 
 The `.md` version is the primary deliverable. The `.docx` is a convenience output.
