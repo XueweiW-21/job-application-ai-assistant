@@ -97,7 +97,24 @@ projects/ — {N} stubs created
 papers/ — {N} stubs created
 ```
 
-### Step 5: Done — User Can Start Applying
+### Step 5: Resume Template (Optional)
+
+Ask: "Do you have a formatted resume template (.docx) you'd like future resumes to match? If so, place it in `.claude/skills/resume-tailor/templates/` and I'll extract the formatting."
+
+If the user provides a template:
+
+```bash
+# macOS/Linux:
+.venv/bin/python .claude/skills/resume-tailor/scripts/extract_styles.py ".claude/skills/resume-tailor/templates/{template_filename}.docx"
+# Windows:
+.venv/Scripts/python.exe .claude/skills/resume-tailor/scripts/extract_styles.py ".claude/skills/resume-tailor/templates/{template_filename}.docx"
+```
+
+This creates `resume_styles.yml` in the templates directory. All future DOCX output from `/resume-tailor` will match the template formatting (fonts, spacing, indentation, margins, bullet style).
+
+If the user skips this, clean default formatting is used. They can always come back and run this later.
+
+### Step 6: Done — User Can Start Applying
 
 Tell the user:
 - They can run `/jd-analyze` on any job posting now

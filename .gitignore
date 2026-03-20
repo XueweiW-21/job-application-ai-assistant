@@ -5,6 +5,10 @@ materials/papers/
 materials/projects/
 !materials/examples/
 
+# Resume template and extracted styles (user-specific)
+.claude/skills/resume-tailor/templates/*.docx
+.claude/skills/resume-tailor/templates/resume_styles.yml
+
 # Application outputs (generated, personal)
 applications/
 tracker.csv

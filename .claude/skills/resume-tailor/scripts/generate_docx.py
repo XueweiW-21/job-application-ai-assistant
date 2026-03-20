@@ -21,7 +21,7 @@ from pathlib import Path
 
 try:
     from docx import Document
-    from docx.shared import Pt, Emu, RGBColor
+    from docx.shared import Pt, Emu
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
@@ -52,7 +52,6 @@ def load_profile():
 
 
 PROFILE       = load_profile()
-FONT_NAME     = PROFILE.get("font", "Times New Roman")
 CONTACT_LINKS = PROFILE.get("links", {})
 
 # Look for a .docx template in the templates directory
@@ -60,14 +59,29 @@ _TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
 _TEMPLATE_FILES = list(_TEMPLATES_DIR.glob("*.docx")) if _TEMPLATES_DIR.exists() else []
 TEMPLATE_PATH = _TEMPLATE_FILES[0] if _TEMPLATE_FILES else None
 
-# EMU spacing constants
-INDENT_BULLET        = Emu(457200)
-SPACE_ROLE_BEFORE    = Emu(76200)
-SPACE_ROLE_AFTER     = Emu(38100)
-SPACE_SUBROLE_BEFORE = Emu(38100)
-SPACE_SUBROLE_AFTER  = Emu(19050)
-SPACE_BULLET_AFTER   = Emu(0)
-SPACE_BULLET_LAST    = Emu(38100)
+
+# ── Load styles from resume_styles.yml ───────────────────────────────────────
+
+def _load_styles():
+    """Load formatting styles from resume_styles.yml if it exists."""
+    styles_path = _TEMPLATES_DIR / "resume_styles.yml" if _TEMPLATES_DIR.exists() else None
+    if styles_path and styles_path.exists():
+        with open(styles_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        return data.get("styles", {}), data.get("page", {})
+    return {}, {}
+
+
+_STYLES, _PAGE = _load_styles()
+
+
+def _s(element, prop, default=None):
+    """Look up a style property, falling back to default."""
+    return _STYLES.get(element, {}).get(prop, default)
+
+
+# Resolved constants: styles override profile, profile overrides built-in defaults
+FONT_NAME = _s("name", "font_name") or PROFILE.get("font", "Times New Roman")
 
 
 # ── Core run factory ──────────────────────────────────────────────────────────
@@ -222,133 +236,158 @@ def add_name_contact_block(doc, md_text):
     if name:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before = Pt(0)
-        p.paragraph_format.space_after  = Pt(2)
-        run(p, name, bold=True, size=20)
+        p.paragraph_format.space_before = Emu(_s("name", "space_before", 0))
+        p.paragraph_format.space_after  = Emu(_s("name", "space_after", 25400))
+        run(p, name, bold=True, size=_s("name", "font_size", 20.0))
 
     if contact:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before = Pt(0)
-        p.paragraph_format.space_after  = Pt(0) if location else Pt(4)
+        p.paragraph_format.space_before = Emu(0)
+        contact_sa = _s("contact", "space_after", 50800)
+        p.paragraph_format.space_after  = Emu(0) if location else Emu(contact_sa)
+        contact_size = _s("contact", "font_size", 10.0)
 
         tokens = [t.strip() for t in contact.split("|")]
         for i, token in enumerate(tokens):
             if i > 0:
-                run(p, " | ", size=10)
+                run(p, " | ", size=contact_size)
             label = _extract_link_label(token)
             if label in CONTACT_LINKS:
-                add_hyperlink(p, label, CONTACT_LINKS[label], size=10)
+                add_hyperlink(p, label, CONTACT_LINKS[label], size=contact_size)
             else:
-                run(p, label, size=10)
+                run(p, label, size=contact_size)
 
     if location:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before = Pt(0)
-        p.paragraph_format.space_after  = Pt(4)
-        run(p, location, size=10)
+        p.paragraph_format.space_before = Emu(0)
+        p.paragraph_format.space_after  = Emu(_s("contact", "space_after", 50800))
+        run(p, location, size=_s("contact", "font_size", 10.0))
 
 
 # ── Paragraph builders ────────────────────────────────────────────────────────
 
 def add_section_header(doc, title):
-    display = re.sub(r"^select\s+", "", title, flags=re.IGNORECASE)
+    # Normalize: strip "Select"/"Selected" so header is always clean (e.g. "PUBLICATIONS")
+    display = re.sub(r"^select(?:ed)?\s+", "", title, flags=re.IGNORECASE)
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Emu(76200)
-    p.paragraph_format.space_after  = Emu(38100)
-    run(p, display.upper(), bold=True)
-    add_bottom_border(p)
+    p.paragraph_format.space_before = Emu(_s("section_header", "space_before", 76200))
+    p.paragraph_format.space_after  = Emu(_s("section_header", "space_after", 38100))
+    run(p, display.upper(), bold=True, size=_s("section_header", "font_size", 11.0))
+    if _s("section_header", "bottom_border", True):
+        add_bottom_border(p)
 
 
 def add_role_line(doc, company_text, date_text, is_first=False):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before    = Emu(88900) if is_first else SPACE_ROLE_BEFORE
-    p.paragraph_format.space_after     = SPACE_ROLE_AFTER
+    first_sb = _s("role_header", "first_space_before", 88900)
+    normal_sb = _s("role_header", "space_before", 76200)
+    p.paragraph_format.space_before    = Emu(first_sb) if is_first else Emu(normal_sb)
+    p.paragraph_format.space_after     = Emu(_s("role_header", "space_after", 38100))
     p.paragraph_format.keep_with_next  = True
-    add_right_tab(p)
-    run(p, company_text, bold=True)
+    add_right_tab(p, pos_twips=_s("role_header", "right_tab_position", 9360))
+    run(p, company_text, bold=True, size=_s("role_header", "font_size", 11.0))
     if date_text:
         run(p, "\t")
-        run(p, date_text)
+        run(p, date_text, size=_s("role_header", "font_size", 11.0))
 
 
 def add_subrole_line(doc, text):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before   = SPACE_SUBROLE_BEFORE
-    p.paragraph_format.space_after    = SPACE_SUBROLE_AFTER
+    p.paragraph_format.space_before   = Emu(_s("job_title", "space_before", 38100))
+    p.paragraph_format.space_after    = Emu(_s("job_title", "space_after", 19050))
     p.paragraph_format.keep_with_next = True
-    _render_inline(p, text)
+    _render_inline(p, text, size=_s("job_title", "font_size", 11.0))
 
 
 def add_bullet(doc, text, is_last=False):
     p = doc.add_paragraph()
-    p.paragraph_format.left_indent       = INDENT_BULLET
-    p.paragraph_format.first_line_indent = Emu(-114300)
-    p.paragraph_format.space_before      = Emu(0)
-    p.paragraph_format.space_after       = SPACE_BULLET_LAST if is_last else SPACE_BULLET_AFTER
-    run(p, "\u25cf  ", size=6)
-    _render_inline(p, text)
+    p.paragraph_format.left_indent       = Emu(_s("bullet", "left_indent", 228600))
+    p.paragraph_format.first_line_indent = Emu(_s("bullet", "first_line_indent", -114300))
+    p.paragraph_format.space_before      = Emu(_s("bullet", "space_before", 0))
+    last_sa = _s("bullet", "last_space_after", 38100)
+    normal_sa = _s("bullet", "space_after", 0)
+    p.paragraph_format.space_after       = Emu(last_sa) if is_last else Emu(normal_sa)
+    bullet_char = _s("bullet", "bullet_char", "\u25cf")
+    bullet_size = _s("bullet", "bullet_font_size", 6.0)
+    run(p, bullet_char + "  ", size=bullet_size)
+    _render_inline(p, text, size=_s("bullet", "font_size", 11.0))
 
 
 def add_institution_line(doc, text, date_text=None):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before   = Pt(0)
-    p.paragraph_format.space_after    = Pt(0)
+    p.paragraph_format.space_before   = Emu(_s("institution", "space_before", 0))
+    p.paragraph_format.space_after    = Emu(_s("institution", "space_after", 0))
     p.paragraph_format.keep_with_next = True
+    inst_size = _s("institution", "font_size", 11.0)
     if date_text:
-        add_right_tab(p)
-    _render_inline(p, text, default_bold=True)
+        add_right_tab(p, pos_twips=_s("institution", "right_tab_position", 9360))
+    _render_inline(p, text, default_bold=True, size=inst_size)
     if date_text:
         run(p, "\t")
-        run(p, date_text)
+        run(p, date_text, size=inst_size)
 
 
 def add_indented_line(doc, text):
     p = doc.add_paragraph()
-    p.paragraph_format.left_indent  = INDENT_BULLET
-    p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.space_after  = Pt(0)
-    _render_inline(p, text)
+    p.paragraph_format.left_indent  = Emu(_s("education_detail", "left_indent",
+                                              _s("bullet", "left_indent", 228600)))
+    p.paragraph_format.space_before = Emu(0)
+    p.paragraph_format.space_after  = Emu(0)
+    _render_inline(p, text, size=_s("education_detail", "font_size", 11.0))
 
 
 def add_skills_line(doc, text):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.space_after  = Pt(0)
+    p.paragraph_format.space_before = Emu(_s("skills_line", "space_before", 0))
+    p.paragraph_format.space_after  = Emu(_s("skills_line", "space_after", 0))
+    skills_size = _s("skills_line", "font_size", 11.0)
     m = re.match(r"(\*\*.*?\*\*:?)\s*(.*)", text)
     if m:
         label = m.group(1).strip("*").rstrip(":")
         items = m.group(2)
-        run(p, label + ": ", bold=True)
+        run(p, label + ": ", bold=True, size=skills_size)
         if items:
-            run(p, items)
+            run(p, items, size=skills_size)
     else:
-        run(p, text)
+        run(p, text, size=skills_size)
 
 
 def add_publication(doc, citation, summary=None):
+    pub_size = _s("publication", "font_size", 11.0)
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.space_after  = Pt(0)
-    _render_inline(p, citation, size=11)
+    p.paragraph_format.space_before = Emu(_s("publication", "space_before", 0))
+    p.paragraph_format.space_after  = Emu(_s("publication", "space_after", 0))
+    _render_inline(p, citation, size=pub_size)
 
     if summary:
         ps = doc.add_paragraph()
-        ps.paragraph_format.space_before = Pt(0)
-        ps.paragraph_format.space_after  = Pt(0)
-        run(ps, summary, size=11)
+        ps.paragraph_format.space_before = Emu(0)
+        ps.paragraph_format.space_after  = Emu(0)
+        run(ps, summary, size=pub_size)
 
     blank = doc.add_paragraph()
-    blank.paragraph_format.space_before = Pt(0)
-    blank.paragraph_format.space_after  = Pt(0)
+    blank.paragraph_format.space_before = Emu(0)
+    blank.paragraph_format.space_after  = Emu(0)
 
 
 # ── Section renderers ─────────────────────────────────────────────────────────
 
+def _strip_education_markdown(text):
+    """Strip markdown syntax that should not appear in education lines."""
+    # Strip ### headers
+    text = re.sub(r"^#{1,4}\s+", "", text)
+    # Strip wrapping *italic* markers (e.g. *Specialization: ...*)
+    text = re.sub(r"^\*(.+)\*$", r"\1", text)
+    # Strip wrapping **bold** markers
+    text = re.sub(r"^\*\*(.+)\*\*$", r"\1", text)
+    return text
+
+
 def render_education(doc, lines):
     for line in lines:
-        s = line.strip()
+        s = _strip_education_markdown(line.strip())
         if not s:
             continue
         if line.startswith("  ") or line.startswith("\t") or s.startswith("-"):
@@ -430,7 +469,14 @@ def render_publications(doc, lines):
             flush()
             citation = re.sub(r"^\d+\.\s+", "", s)
             summary  = None
-        elif s.startswith("(") and s.endswith(")"):
+        elif citation and summary is None and (
+            (s.startswith("(") and s.endswith(")"))
+            or (not re.match(r"^\d+\.\s", s)
+                and not s.startswith("##")
+                and len(s) < 200)
+        ):
+            # Treat the next non-empty line after a citation as its summary,
+            # whether in (parens) or as a plain sentence.
             summary = s
         else:
             flush()
@@ -441,7 +487,7 @@ def render_publications(doc, lines):
 
 def render_section(doc, name, lines):
     add_section_header(doc, name)
-    n = re.sub(r"^select\s+", "", name.upper().strip())
+    n = re.sub(r"^select(?:ed)?\s+", "", name.upper().strip())
     if n == "EDUCATION":
         render_education(doc, lines)
     elif n in ("SKILLS SUMMARY", "SKILLS"):
@@ -515,6 +561,15 @@ def generate_docx(md_path, output_path):
         clear_body(doc)
     else:
         doc = Document()
+
+    # Apply page margins from styles (template already has them, but this
+    # ensures consistency when no template is used or styles override)
+    if _PAGE:
+        sec = doc.sections[0]
+        sec.top_margin    = Emu(_PAGE.get("top_margin", 914400))
+        sec.bottom_margin = Emu(_PAGE.get("bottom_margin", 914400))
+        sec.left_margin   = Emu(_PAGE.get("left_margin", 914400))
+        sec.right_margin  = Emu(_PAGE.get("right_margin", 914400))
 
     add_name_contact_block(doc, md_text)
 

@@ -135,6 +135,12 @@ class TestSortSectionsForAts:
         names = [s["section"] for s in sorted_sections]
         assert names.index("Experience") < names.index("Select Publications")
 
+    def test_selected_publications_treated_same_as_publications(self):
+        sections = self._make_sections(["Selected Publications", "Experience", "Education"])
+        sorted_sections = gd.sort_sections_for_ats(sections)
+        names = [s["section"] for s in sorted_sections]
+        assert names.index("Experience") < names.index("Selected Publications")
+
     def test_unknown_sections_go_to_end(self):
         sections = self._make_sections(["Custom Section", "Education"])
         sorted_sections = gd.sort_sections_for_ats(sections)
@@ -166,6 +172,123 @@ class TestExtractLinkLabel:
         # Malformed link — no closing paren — should return the token as-is
         token = "[LinkedIn](https://linkedin.com"
         assert gd._extract_link_label(token) == token.strip()
+
+
+# ── Integration: generate_docx ────────────────────────────────────────────────
+
+# ── render_education: markdown stripping ──────────────────────────────────────
+
+class TestRenderEducation:
+    def test_strips_italic_markers(self, tmp_path):
+        from docx import Document
+
+        md = """\
+# Test Person
+
+Email: test@example.com | Tel: (555) 000-0001
+City, ST
+
+## Education
+
+**University of Michigan, SEAS** | Graduated April 2019
+- Master of Science, Natural Resources and Environment
+- *Specialization: Geospatial Data Science*
+
+## Skills Summary
+
+**Languages:** Python
+"""
+        input_md = tmp_path / "resume.md"
+        input_md.write_text(md, encoding="utf-8")
+        output_docx = tmp_path / "output.docx"
+        gd.generate_docx(str(input_md), str(output_docx))
+
+        doc = Document(str(output_docx))
+        all_text = " ".join(p.text for p in doc.paragraphs)
+        assert "Specialization: Geospatial Data Science" in all_text
+        # No stray * markers in the output
+        assert "*Specialization" not in all_text
+
+    def test_strips_hash_headers(self, tmp_path):
+        from docx import Document
+
+        md = """\
+# Test Person
+
+Email: test@example.com | Tel: (555) 000-0001
+City, ST
+
+## Education
+
+### Some University | 2020
+- B.S. Computer Science
+- *Specialization in AI*
+
+## Skills Summary
+
+**Languages:** Python
+"""
+        input_md = tmp_path / "resume.md"
+        input_md.write_text(md, encoding="utf-8")
+        output_docx = tmp_path / "output.docx"
+        gd.generate_docx(str(input_md), str(output_docx))
+
+        doc = Document(str(output_docx))
+        all_text = " ".join(p.text for p in doc.paragraphs)
+        # ### should be stripped, not appear in output
+        assert "###" not in all_text
+        assert "Some University" in all_text
+
+
+# ── render_publications: summary handling ─────────────────────────────────────
+
+class TestRenderPublications:
+    def test_section_header_normalized_from_selected(self, tmp_path):
+        from docx import Document
+
+        md = """\
+# Test Person
+
+Email: test@example.com | Tel: (555) 000-0001
+City, ST
+
+## Selected Publications
+
+1. Author, A. (2023). "Title." *Journal*, 10, 123.
+(Summary in parens)
+"""
+        input_md = tmp_path / "resume.md"
+        input_md.write_text(md, encoding="utf-8")
+        output_docx = tmp_path / "output.docx"
+        gd.generate_docx(str(input_md), str(output_docx))
+
+        doc = Document(str(output_docx))
+        all_text = " ".join(p.text for p in doc.paragraphs)
+        assert "PUBLICATIONS" in all_text
+        assert "SELECTED" not in all_text
+
+    def test_plain_summary_without_parens(self, tmp_path):
+        from docx import Document
+
+        md = """\
+# Test Person
+
+Email: test@example.com | Tel: (555) 000-0001
+City, ST
+
+## Publications
+
+1. Author, A. (2023). "Title." *Journal*, 10, 123.
+Relevant to this role because of the methodology used.
+"""
+        input_md = tmp_path / "resume.md"
+        input_md.write_text(md, encoding="utf-8")
+        output_docx = tmp_path / "output.docx"
+        gd.generate_docx(str(input_md), str(output_docx))
+
+        doc = Document(str(output_docx))
+        all_text = " ".join(p.text for p in doc.paragraphs)
+        assert "Relevant to this role" in all_text
 
 
 # ── Integration: generate_docx ────────────────────────────────────────────────
