@@ -94,29 +94,52 @@ Most job portals accept DOCX and PDF equally, but many ATS (Applicant Tracking S
 | `/referral-note` | Write a third-person blurb for a referrer to forward |
 | `/track` | Log and query applications in tracker.csv |
 | `/interview-prep` | Generate interview prep calibrated to the round type |
+| `/quick-apply` | One-pass ATS resume for volume applications (skip full analysis) |
 
 ## How the Pipeline Works
 
 ```
 Paste a JD
     ↓
-/jd-analyze scores fit
+Full analysis or quick apply?
     ↓
-Strong fit? → auto-tailors resume
-Moderate/stretch? → asks you first
-Mismatch? → tells you, stops
-    ↓
-Asks: want a cover letter?
-Asks: have a referral?
-    ↓
-Application submitted
-    ↓
-Interview invite comes in
-    ↓
-/interview-prep generates round-specific prep
+┌─────────────────────────┬──────────────────────────┐
+│  /jd-analyze            │  /quick-apply            │
+│  scores fit             │  extracts keywords       │
+│      ↓                  │  tailors resume          │
+│  Strong? auto-resume    │  generates DOCX          │
+│  Stretch? asks first    │  updates tracker         │
+│  Mismatch? stops        │      ↓                   │
+│      ↓                  │  Done. Next JD.          │
+│  Cover letter?          │                          │
+│  Referral note?         │  (run /jd-analyze later  │
+│      ↓                  │   if you get a callback) │
+│  Application submitted  │                          │
+│      ↓                  │                          │
+│  /interview-prep        │                          │
+└─────────────────────────┴──────────────────────────┘
 ```
 
 Every skill auto-updates `tracker.csv` so you always know where each application stands.
+
+## Full Pipeline vs Quick Apply
+
+Use the full pipeline (`/jd-analyze` + `/resume-tailor`) for roles you actually care about. Use `/quick-apply` for volume.
+
+| | `/jd-analyze` + `/resume-tailor` | `/quick-apply` |
+|---|---|---|
+| Fit scoring | Yes — 4 tiers with evidence | Yes — stops on mismatch only |
+| JD output | Full 12-section analysis | Minimal reference (keywords, responsibilities, gaps) |
+| Resume reframing strategies | All 4 (Keyword Alignment, Emphasis Shift, Abstraction Level Adjustment, Scale Emphasis) | 2 (Keyword Alignment, Emphasis Shift only) |
+| Voice matching | Yes — reads `bio.md` | No |
+| Publications | Selected and ranked by JD relevance | Selected and ranked by JD relevance |
+| Cover letter | Prompted after resume | Not prompted |
+| Referral note | Prompted after cover letter | Not prompted |
+| Interview prep | Full context available | Run `/jd-analyze` first if you get a callback |
+| When to use | Referrals, strong fit, dream companies | Mass applications, long-shot roles |
+
+
+**Upgrade path:** If you quick-applied and got a callback, run `/jd-analyze` on the same folder. It produces a full `jd_analysis.md` alongside the existing `jd_quick.md`. Then run `/interview-prep`   before the interview.
 
 ## Materials Structure
 

@@ -38,7 +38,7 @@ Read `profile.yml` at the start of every skill invocation for the user's name, c
 - Always read relevant files from `materials/` before generating any content
 - Tracker log: `tracker.csv`
 
-## Skills (7 total)
+## Skills (8 total)
 0. `/setup` — Extract materials from uploaded docs; `/setup deepen` to fill gaps with targeted questions
 1. `/jd-analyze` — Analyze JD, output structured match brief with fit scores and gaps
 2. `/resume-tailor` — Rewrite Skills + Experience sections to mirror JD; output .md + .docx
@@ -46,11 +46,15 @@ Read `profile.yml` at the start of every skill invocation for the user's name, c
 4. `/referral-note` — Write a short third-person blurb for a referrer to forward to the hiring manager
 5. `/track` — Log and query applications in tracker.csv
 6. `/interview-prep` — Generate STAR stories, technical talking points, questions to ask
+7. `/quick-apply` — One-pass ATS resume for volume applications: extract keywords, tailor resume, generate DOCX, update tracker
 
 ## Skill Triggers (proactive behavior)
 
 ### Job description detected
-If the user pastes a URL that looks like a job posting, or pastes a block of text that reads like a JD (role title, responsibilities, qualifications), ask: "Looks like a job posting — want me to run `/jd-analyze` on it?"
+If the user pastes a URL that looks like a job posting, or pastes a block of text that reads like a JD (role title, responsibilities, qualifications), ask: "Looks like a job posting — want me to run `/jd-analyze` on it? Or `/quick-apply` if you are in volume mode?"
+
+### Quick apply / batch apply mentioned
+If the user says "quick apply", "batch apply", "mass apply", or similar, run `/quick-apply`. Do not run `/jd-analyze`.
 
 ### After JD analysis completes
 - If fit tier is 🟢 Strong Fit: automatically run `/resume-tailor` without waiting for the user to ask. Tell the user you are doing it.

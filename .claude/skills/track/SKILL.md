@@ -1,7 +1,6 @@
 ---
 name: track
 description: Log, query, and update job applications in tracker.csv
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 argument-hint: "add|update|list|summary [folder] [status]"
 ---
 
@@ -13,6 +12,7 @@ Maintain a single `tracker.csv` at the project root to log every application and
 
 This tracker is updated automatically by other skills:
 - **`/jd-analyze`** — when a new `jd_analysis.md` is written, add a row with status `analyzed` and populate company, role, folder, fit_tier, and date fields
+- **`/quick-apply`** — when `jd_quick.md` and `resume_tailored.md` are written, add a row with status `quick_applied`, `resume_version` = `Yes`, `notes` = `quick-apply`
 - **`/resume-tailor`** — when `resume_tailored.md` is written, update the row: set `resume_version` to `Yes`
 - **`/cover-letter`** — when `cover_letter.md` is written, update the row: set `cover_letter` to `Yes`
 - **`/interview-prep`** — when interview prep is generated, update: set `interview_stage` to the type (screening / HM / technical / behavioral / final), set `next_interview_date` if the user provides one, and append the interview type to `notes`
@@ -35,7 +35,7 @@ date_applied,company,role,folder,job_id,source,referral,fit_tier,status,intervie
 | source | text | User input | How found: LinkedIn, referral, company site, recruiter outreach, etc. |
 | referral | text | User input, optional | Name of referring employee if applicable |
 | fit_tier | text | From jd_analysis.md banner | e.g., 🟢 Strong Fit, 🔵 Moderate Fit |
-| status | text | User updates | One of: analyzed, applied, screening, interview, offer, rejected, withdrawn, ghosted |
+| status | text | User updates | One of: analyzed, quick_applied, applied, screening, interview, offer, rejected, withdrawn, ghosted |
 | interview_stage | text | From /interview-prep | Latest stage: screening, HM, technical, behavioral, final, or blank |
 | next_interview_date | YYYY-MM-DD | User input | Date of the next scheduled interview |
 | last_contact_date | YYYY-MM-DD | User updates | Last date of any communication with the company |
@@ -99,6 +99,7 @@ When computing `follow_up_date`:
 
 | Status | Follow-up rule |
 |---|---|
+| quick_applied | 7 days after `date_applied` |
 | applied | 7 days after `date_applied` |
 | screening | 5 days after `last_contact_date` |
 | interview | 3 days after `last_contact_date` or `next_interview_date` (whichever is later) |

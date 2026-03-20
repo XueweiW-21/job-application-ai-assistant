@@ -17,18 +17,17 @@ The user provides an application folder name (e.g. `Acme_DataScientist_R12345_20
 Read all of these before writing anything:
 
 1. `profile.yml` — user's name, contact info, links, writing rules
-2. `applications/{folder}/jd_analysis.md` — **required**. If missing, stop and tell the user to run `/jd-analyze` first.
+2. `applications/{folder}/jd_analysis.md` — the full JD analysis. **If missing**, check for `jd_quick.md` (produced by `/quick-apply`). If neither exists, stop and tell the user to run `/jd-analyze` or `/quick-apply` first.
 3. `materials/resume_master.md` — source of truth for all experience
 4. `materials/skills_inventory.md` — source of truth for all skills and proficiency levels
 5. `materials/papers/*.md` — publication details
 6. `materials/projects/*.md` — project details
 
-From `jd_analysis.md`, extract:
-- Must-have and nice-to-have requirements
-- ATS keywords to mirror
-- Resume tailoring notes (from the dedicated section)
-- Role archetype and seniority signals
-- Gaps identified
+### Full mode (from `jd_analysis.md`)
+Extract: must-have and nice-to-have requirements, ATS keywords, resume tailoring notes, role archetype and seniority signals, gaps identified. Use all four reframing strategies. Read `materials/bio.md` for voice matching.
+
+### Lightweight mode (from `jd_quick.md`)
+Extract: must-have keywords, nice-to-have keywords, key responsibilities, gaps. Use only **Keyword Alignment** and **Emphasis Shift** strategies (skip Abstraction Level Adjustment and Scale Emphasis — these need the deeper context from a full analysis). Skip reading `materials/bio.md`. All other steps (skills rewrite, bullet selection, publications, DOCX) run normally.
 
 ## Step 2: Rewrite Skills Summary
 
@@ -106,16 +105,30 @@ Output structure (markdown):
 {Location from profile.yml}
 
 ## Education
-[Keep exactly as in resume_master.md — never modify education]
+
+> **{University Name}** | {City, State} | Graduated {Month Year}
+> {Degree}, {Field of Study}
+> - {Specialization, certificate, honors, or activities if present}
 
 ## Skills Summary
 [Rewritten per Step 2]
 
 ## Experience
-[Rewritten per Step 3 — keep chronological order, most recent first]
+
+> ### {Company Name} | {City, State} | {Start Date} - {End Date or Present}
+> *{Job Title}*
+> - {Bullet point}
 
 ## Publications
-[Selected per Step 4]
+
+1. {Full citation}
+{One sentence explaining relevance to this specific role}
+
+[Selected per Step 4. Section header MUST be exactly "## Publications" — never
+"Select Publications" or "Selected Publications". Each entry is a numbered citation
+followed by a one-sentence brief on the next line explaining why it is relevant
+to this role. The brief is required — it tells the hiring manager why this paper matters
+for the position.]
 ```
 
 Target length depends on `experience_level` from `profile.yml`:
@@ -161,14 +174,37 @@ pip install -r requirements.txt
 
 The `.md` version is the primary deliverable. The `.docx` is a convenience output.
 
+If `resume_styles.yml` exists in `.claude/skills/resume-tailor/templates/`, the generator uses those formatting values (fonts, spacing, indentation, margins, bullet style). Otherwise clean defaults are used. See `/setup` for how to extract styles from a template.
+
 ## Step 8: Show Summary
 
-After generating both files, display to the user:
-- Which bullets were selected for each role (by count)
-- Which publications were included
-- Key reframing decisions made (so the user can review)
-- Any gaps from the JD analysis that the resume cannot address (be transparent)
-- File paths for both outputs
+After generating both files, display to the user using this exact format:
+
+### Bullet Selection
+
+| Role | Bullets | Notes |
+|---|---|---|
+| {Company/Role (most recent)} | {N} | {Brief note: what angle was emphasized, which JD requirements this covers} |
+| {Company/Role} | {N} | {Brief note} |
+| {Company/Role} | {N} | {Brief note} |
+| {Company/Role (oldest)} | {N or 0} | {If 0: "Not JD-relevant at {experience_level} level"} |
+
+### Publications Included
+- {Citation 1} — {why selected}
+- {Citation 2} — {why selected}
+- (or "No publications section — none available in materials")
+
+### Key Reframing Decisions
+- {Bullet X}: applied {strategy name} — changed "{original phrasing}" to "{new phrasing}" to echo JD language for {requirement}
+- {Bullet Y}: applied {strategy name} — {explanation}
+
+### Unaddressed Gaps
+- {Gap from JD analysis that the resume cannot cover, with honest note}
+- (or "All must-have requirements addressed")
+
+### Output Files
+- `{path to resume_tailored.md}`
+- `{path to .docx if generated}`
 
 ## Hard Rules
 
@@ -183,7 +219,7 @@ After generating both files, display to the user:
 
 - Every bullet in the output must have a corresponding source in `resume_master.md`
 - Skills listed must exist in `skills_inventory.md` (or meet the learnable language exception)
-- ATS keywords from `jd_analysis.md` should appear naturally in the resume (check coverage)
+- ATS keywords from `jd_analysis.md` or `jd_quick.md` should appear naturally in the resume (check coverage)
 - Writing rules from `profile.yml` are applied throughout
 - Contact info matches `profile.yml`
 - Education is unchanged from source
