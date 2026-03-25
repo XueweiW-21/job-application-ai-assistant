@@ -216,12 +216,11 @@ def _extract_link_label(token):
 
 def add_name_contact_block(doc, md_text):
     """
-    Render name, contact line, and location as body paragraphs.
+    Render name and contact line as body paragraphs (location line omitted).
     Known link labels from profile.yml are rendered as clickable hyperlinks.
     """
-    name     = ""
-    contact  = ""
-    location = ""
+    name    = ""
+    contact = ""
 
     for line in md_text.split("\n"):
         s = line.strip()
@@ -229,8 +228,6 @@ def add_name_contact_block(doc, md_text):
             name = s[2:].strip()
         elif not contact and "@" in s and not s.startswith("#"):
             contact = s
-        elif not location and contact and not s.startswith("#") and not s.startswith("---") and s:
-            location = s
             break
 
     if name:
@@ -244,8 +241,7 @@ def add_name_contact_block(doc, md_text):
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_before = Emu(0)
-        contact_sa = _s("contact", "space_after", 50800)
-        p.paragraph_format.space_after  = Emu(0) if location else Emu(contact_sa)
+        p.paragraph_format.space_after  = Emu(_s("contact", "space_after", 50800))
         contact_size = _s("contact", "font_size", 10.0)
 
         tokens = [t.strip() for t in contact.split("|")]
@@ -257,13 +253,6 @@ def add_name_contact_block(doc, md_text):
                 add_hyperlink(p, label, CONTACT_LINKS[label], size=contact_size)
             else:
                 run(p, label, size=contact_size)
-
-    if location:
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before = Emu(0)
-        p.paragraph_format.space_after  = Emu(_s("contact", "space_after", 50800))
-        run(p, location, size=_s("contact", "font_size", 10.0))
 
 
 # ── Paragraph builders ────────────────────────────────────────────────────────
@@ -515,7 +504,10 @@ def parse_resume_md(md_text):
         if current_section is not None:
             sections.append({"section": current_section, "lines": list(current_lines)})
 
-    for line in md_text.split("\n"):
+    for raw_line in md_text.split("\n"):
+        # Strip blockquote prefix ("> " or ">") so both plain and blockquote
+        # markdown formats are handled correctly by all section renderers.
+        line = re.sub(r"^>\s?", "", raw_line)
         s = line.strip()
         if s.startswith("# ") and not s.startswith("## "):
             continue
