@@ -45,7 +45,7 @@ Read `profile.yml` at the start of every skill invocation for the user's name, c
 3. `/cover-letter` — Write cover letter in the user's voice using JD analysis + company context
 4. `/referral-note` — Write a short third-person blurb for a referrer to forward to the hiring manager
 5. `/track` — Log and query applications in tracker.csv
-6. `/interview-prep` — Generate STAR stories, technical talking points, questions to ask
+6. `/interview-prep` — Search for real questions, generate speakable prep, optional study plan, post-round debrief
 7. `/quick-apply` — One-pass ATS resume for volume applications: extract keywords, tailor resume, generate DOCX, update tracker
 
 ## Skill Triggers (proactive behavior)
@@ -67,6 +67,9 @@ If `/jd-analyze` identifies a must-have requirement that maps to a thin area in 
 
 ### Interview mentioned
 If the user says anything that sounds like they have an interview coming up (e.g., "I have a call with...", "they scheduled me for...", "help me prep for...", "interview on..."), ask if they want to run `/interview-prep` and which application folder it is for.
+
+### Post-interview debrief
+If the user says anything that sounds like they just finished an interview (e.g., "the call went well", "just finished the interview", "I think I will move to the next round", "today's call went well"), ask: "Want to do a quick debrief so I can use it for the next round?" Then run the debrief step from `/interview-prep`.
 
 ## Key Materials (read before generating)
 - `materials/resume_master.md` — full work history (source of truth)
