@@ -31,9 +31,18 @@ If the user provides insider intel (coffee chat transcript, recruiter notes, fri
 
 ## Step 2: Search for Interview Questions Online
 
-Proactively search for real interview questions and experiences for this company and role. Do not wait for the user to provide a question list — go find what exists.
+Proactively search for real interview questions and experiences for this company and role. Do not wait for the user to provide a question list — go find what exists. **Scale search depth to the round type:**
 
-### Search sources (try in this order)
+### Search depth by round type
+
+| Round | Depth | Sources to use |
+|---|---|---|
+| **Screening** | Minimal | Skip web search entirely. Screening calls follow a standard format (motivation, logistics, salary expectations). Use JD-based prediction only. |
+| **Hiring Manager** | Medium | Sources 1 and 2 only. Focus on role-specific questions and what the HM cares about. |
+| **Technical / Final** | Full | All sources (1 through 6). These rounds have the most variation and benefit most from real candidate reports. |
+| **Behavioral** | Medium | Sources 1 and 3. Behavioral questions are more standardized, but company-specific values questions are worth searching for. |
+
+### Search sources (numbered for reference above)
 
 1. **WebSearch:** `"{company}" "{role}" interview questions`
 2. **WebSearch:** `"{company}" interview experience {year}` (use the current year and the previous year)
