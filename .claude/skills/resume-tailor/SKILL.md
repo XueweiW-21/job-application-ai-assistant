@@ -14,7 +14,7 @@ The user provides an application folder name (e.g. `Acme_DataScientist_R12345_20
 
 ## Step 1: Load Context
 
-Read all of these before writing anything:
+Read all of these before writing anything. **Batch session note:** if any of these files were already read earlier in this conversation, reuse the loaded content instead of re-reading. Only re-read if the user says they have updated a file.
 
 1. `profile.yml` — user's name, contact info, links, writing rules
 2. `applications/{folder}/jd_analysis.md` — the full JD analysis. **If missing**, check for `jd_quick.md` (produced by `/quick-apply`). If neither exists, stop and tell the user to run `/jd-analyze` or `/quick-apply` first.

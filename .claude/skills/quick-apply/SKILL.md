@@ -8,6 +8,10 @@ argument-hint: "JD text, URL, or paste"
 
 Single-pass pipeline for volume applications. Extracts JD essentials, writes a minimal reference file, then hands off to `/resume-tailor` in lightweight mode. Trades depth for speed.
 
+## Batch Session Note
+
+If `resume_master.md`, `skills_inventory.md`, `profile.yml`, or `materials/papers/*` were already read earlier in this conversation, reuse the loaded content. Do not re-read unchanged materials for each application. Only re-read if the user says they have updated a file.
+
 ## Input
 
 JD text, URL (fetched via WebFetch), or pasted content.
